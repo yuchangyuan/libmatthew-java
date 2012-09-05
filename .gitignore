@@ -1,0 +1,9 @@
+/classes
+*.jar
+*.so
+/unix-java.h
+/cgi-java.h
+/Manifest
+/.classes
+/.disabledebug
+
