@@ -2,17 +2,17 @@
  * Java Unix Sockets Library
  *
  * Copyright (c) Matthew Johnson 2004
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- * 
+ *
  * To Contact the author, please email src@matthew.ath.cx
  *
  */
@@ -32,12 +32,40 @@ import java.io.OutputStream;
 
 import cx.ath.matthew.debug.Debug;
 
+import java.io.File;
+import java.io.FileOutputStream;
+
 /**
  * Represents a UnixSocket.
  */
 public class UnixSocket
 {
-   static { System.loadLibrary("unix-java"); }
+   static {
+       ClassLoader loader = UnixSocket.class.getClassLoader();
+       InputStream in = null;
+       File f = null;
+       try {
+           in = loader.getResourceAsStream("libunix-java.so");
+           f = File.createTempFile("jni", ".so");
+           OutputStream out = new FileOutputStream(f);
+
+           byte[] buffer = new byte[512];
+           int len = in.read(buffer);
+           while (len != -1) {
+               out.write(buffer, 0, len);
+               len = in.read(buffer);
+           }
+
+           in.close();
+           out.close();
+
+           System.load(f.getAbsolutePath());
+       } catch (IOException e) {
+       }
+       finally {
+           if (f != null)  f.delete();
+       }
+   }
    private native void native_set_pass_cred(int sock, boolean passcred) throws IOException;
    private native int native_connect(String address, boolean abs) throws IOException;
    private native void native_close(int sock) throws IOException;
@@ -113,7 +141,7 @@ public class UnixSocket
    }
    public void finalize()
    {
-      try { 
+      try {
          close();
       } catch (IOException IOe) {}
    }
@@ -152,7 +180,7 @@ public class UnixSocket
     * @return The UnixSocketAddress the socket is connected to
     */
    public UnixSocketAddress getAddress()
-   { 
+   {
       return address;
    }
    /**

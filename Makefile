@@ -61,13 +61,14 @@ cgi-$(CGIVER).jar: .classes
 	(cd classes; $(JAR) cf ../$@ cx/ath/matthew/cgi/*class)
 io-$(IOVER).jar: .classes
 	(cd classes; $(JAR) cf ../$@ cx/ath/matthew/io/*class)
-unix-$(UNIXVER).jar: .classes
+unix-$(UNIXVER).jar: .classes libunix-java.so
 ifeq ($(DEBUG),enable)
 	echo "Class-Path: $(JARDIR)/debug-$(DEBUG).jar" > Manifest
 else
 	echo "Class-Path: " > Manifest
 endif
 	(cd classes; $(JAR) cfm ../$@ ../Manifest cx/ath/matthew/unix/*class)
+	$(JAR) uf $@ libunix-java.so
 
 hexdump-$(HEXVER).jar: .classes
 	(cd classes; $(JAR) cf ../$@ cx/ath/matthew/utils/Hexdump.class)
