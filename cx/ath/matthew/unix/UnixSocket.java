@@ -66,6 +66,9 @@ public class UnixSocket
            if (f != null)  f.delete();
        }
    }
+
+   public static void init() {};
+
    private native void native_set_pass_cred(int sock, boolean passcred) throws IOException;
    private native int native_connect(String address, boolean abs) throws IOException;
    private native void native_close(int sock) throws IOException;
